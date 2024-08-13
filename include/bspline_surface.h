@@ -42,6 +42,13 @@ public:
    */
   double GetHeight(double x, double y);
 
+  /**
+   * \brief 获得拟合面
+   * 
+   * \param surface 
+   */
+  void GetSurface(PointCloud::Ptr& surface);
+
 private:
   /**
    * \brief 通过kdtree来插补控制点

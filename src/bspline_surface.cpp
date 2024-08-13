@@ -98,8 +98,8 @@ void BspSurface::KdInterplation(int kn) {
 }
 
 void BspSurface::KnotVector() {
-  int knots_u_num = ct_x_num_ + ku_ + 1;
-  int knots_v_num = ct_y_num_ + kv_ + 1;
+  int knots_u_num = ct_x_num_ + ku_; // 控制点数(n+1)+阶数k
+  int knots_v_num = ct_y_num_ + kv_;
   knots_u_.clear();
   knots_v_.clear();
   knots_u_.resize(knots_u_num);
@@ -107,7 +107,7 @@ void BspSurface::KnotVector() {
 
   for (int i = 0; i < ku_; ++i) {
     knots_u_[i] = 0.0f;
-    knots_u_[knots_u_num - 1 - i] = static_cast<float>(ct_x_num_ - ku_ + 2);
+    knots_u_[knots_u_num - 1 - i] = static_cast<float>(ct_x_num_ - ku_ + 1);
   }
 
   for (int i = ku_; i < knots_u_num - ku_; ++i) {
@@ -116,7 +116,7 @@ void BspSurface::KnotVector() {
 
   for (int i = 0; i < kv_; ++i) {
     knots_v_[i] = 0.0f;
-    knots_v_[knots_v_num - 1 - i] = static_cast<float>(ct_y_num_ - kv_ + 2);
+    knots_v_[knots_v_num - 1 - i] = static_cast<float>(ct_y_num_ - kv_ + 1);
   }
   for (int i = kv_; i < knots_v_num - kv_; ++i) {
     knots_v_[i] = static_cast<float>(i - kv_ + 1);
@@ -141,4 +141,8 @@ PointT BspSurface::Sample(double sx, double sy) {
   // step: 采样高度
   double su, sv;
   GetUV(sx, sy, su, sv);
+}
+
+void BspSurface::GetSurface(PointCloud::Ptr &surface) {
+
 }
