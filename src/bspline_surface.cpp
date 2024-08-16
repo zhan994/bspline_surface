@@ -72,7 +72,7 @@ void BspSurface::KdInterplation(int kn) {
     PointT pt_2d;
     pt_2d.x = pt.x;
     pt_2d.y = pt.y;
-    pt_2d.z = pt.z;
+    pt_2d.z = 0.;
     ct_pts_pcl_2d->points.push_back(pt_2d);
   }
 
@@ -145,7 +145,7 @@ PointT BspSurface::SampleXY(double sx, double sy) {
   // step: 采样高度
 }
 
-Point BspSurface::SampleUV(double su, double sv) {}
+PointT BspSurface::SampleUV(double su, double sv) {}
 
 PointT BspSurface::Sample(const std::vector<PointT> ct_pts,
                           const std::vector<double> knots, double t){}
