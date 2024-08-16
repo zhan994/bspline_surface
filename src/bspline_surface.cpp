@@ -127,7 +127,7 @@ void BspSurface::KnotVector() {
 // TODO
 void BspSurface::KnotSpatio() {}
 
-PointT BspSurface::Sample(double sx, double sy) {
+PointT BspSurface::SampleXY(double sx, double sy) {
   PointT ret;
   ret.x = sx;
   ret.y = sy;
@@ -145,10 +145,10 @@ PointT BspSurface::Sample(double sx, double sy) {
   // step: 采样高度
 }
 
-Point BspSurface::Sample(double su, double sv) {}
+Point BspSurface::SampleUV(double su, double sv) {}
 
 PointT BspSurface::Sample(const std::vector<PointT> ct_pts,
-                          const std::vector<double> knots, double t);
+                          const std::vector<double> knots, double t){}
 
 double BspSurface::GetHeight(double x, double y) {}
 

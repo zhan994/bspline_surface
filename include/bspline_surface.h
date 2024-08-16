@@ -80,7 +80,7 @@ private:
    * \param sv 对应采样点u向节点
    * \return PointT 逼近后的采样点
    */
-  PointT Sample(double sx, double sy);
+  PointT SampleXY(double sx, double sy);
 
   /**
    * \brief 采样
@@ -89,7 +89,7 @@ private:
    * \param sy
    * \return PointT 采样点
    */
-  PointT Sample(double su, double sv);
+  PointT SampleUV(double su, double sv);
 
   /**
    * \brief 采样
