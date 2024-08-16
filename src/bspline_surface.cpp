@@ -60,6 +60,7 @@ void BspSurface::SetData(const PointCloud::Ptr &input, double perc, int kn) {
 
   // step: 均匀有理节点向量
   KnotVector();
+  KnotSpatio();
 
   std::cout << "Finish Init." << std::endl;
 }
@@ -123,6 +124,9 @@ void BspSurface::KnotVector() {
   }
 }
 
+// TODO
+void BspSurface::KnotSpatio() {}
+
 PointT BspSurface::Sample(double sx, double sy) {
   PointT ret;
   ret.x = sx;
@@ -139,10 +143,13 @@ PointT BspSurface::Sample(double sx, double sy) {
   }
 
   // step: 采样高度
-  double su, sv;
-  GetUV(sx, sy, su, sv);
 }
 
-void BspSurface::GetSurface(PointCloud::Ptr &surface) {
+Point BspSurface::Sample(double su, double sv) {}
 
-}
+PointT BspSurface::Sample(const std::vector<PointT> ct_pts,
+                          const std::vector<double> knots, double t);
+
+double BspSurface::GetHeight(double x, double y) {}
+
+void BspSurface::GetSurface(PointCloud::Ptr &surface) {}

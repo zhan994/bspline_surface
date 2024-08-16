@@ -36,18 +36,18 @@ public:
   /**
    * \brief 获取高度
    *
-   * \param x 位置
-   * \param y 
+   * \param x enu位置
+   * \param y
    * \return double 对应位置的高度
    */
   double GetHeight(double x, double y);
 
   /**
    * \brief 获得拟合面
-   * 
-   * \param surface 
+   *
+   * \param surface
    */
-  void GetSurface(PointCloud::Ptr& surface);
+  void GetSurface(PointCloud::Ptr &surface);
 
 private:
   /**
@@ -63,28 +63,48 @@ private:
    */
   void KnotVector();
 
+
+  /**
+   * \brief 节点向量的空间分布
+   * 
+   */
+  void KnotSpatio();
+
   /**
    * \brief 采样
+   *  // note: 按距离比例取初值，loss较大时采用二分逼近
    * 
-   * \param sx 采样点位置
-   * \param sy 
-   * \return PointT 采样点
+   * \param sx 采样点空间x
+   * \param sy 采样点空间y
+   * \param su 对应采样点u向节点
+   * \param sv 对应采样点u向节点
+   * \return PointT 逼近后的采样点
    */
   PointT Sample(double sx, double sy);
 
   /**
-   * \brief Get the Span object
-   * 
-   * \param sx 
-   * \param sy 
-   * \param su 
-   * \param sv 
+   * \brief 采样
+   *
+   * \param sx 采样点位置
+   * \param sy
+   * \return PointT 采样点
    */
-  void GetUV(double sx, double sy, double& su, double& sv);
+  PointT Sample(double su, double sv);
 
-  int ku_, kv_;                 // uv阶
-  std::vector<double> knots_u_; // u向节点向量
-  std::vector<double> knots_v_; // v向节点向量
+  /**
+   * \brief 采样
+   *
+   * \param ct_pts 控制点
+   * \param knots 节点向量
+   * \param t 节点值
+   * \return PointT 采样点
+   */
+  PointT Sample(const std::vector<PointT> ct_pts,
+                const std::vector<double> knots, double t);
+
+  int ku_, kv_;                                   // uv阶
+  std::vector<double> knots_u_, knots_v_;         // uv向节点向量
+  std::vector<PointT> pts_knots_u_, pts_knots_v_; // uv向节点向量对应点
 
   double grid_size_;
   std::vector<std::vector<PointT>> ct_pts_; // 控制点
