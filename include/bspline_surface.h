@@ -25,6 +25,15 @@ public:
   BspSurface(int k, double grid_size);
 
   /**
+   * \brief Construct a new Bsp Surface object
+   * 
+   * \param ku 
+   * \param kv 
+   * \param grid_size 
+   */
+  BspSurface(int ku, int kv, double grid_size);
+
+  /**
    * \brief 输入数据
    *
    * \param input 输入点云

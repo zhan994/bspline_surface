@@ -6,6 +6,12 @@ BspSurface::BspSurface(int k, double grid_size)
   std::cout << "Cons. BSpline Surface." << std::endl;
 }
 
+BspSurface::BspSurface(int ku, int kv, double grid_size)
+    : ku_(ku), kv_(kv), grid_size_(grid_size), ct_pts_pcl_(new PointCloud) {
+  debug_ = true;
+  std::cout << "Cons. BSpline Surface." << std::endl;
+}
+
 void BspSurface::SetData(const PointCloud::Ptr &input, double perc, int kn) {
   std::cout << "Init,,," << std::endl;
   ct_pts_.clear();
