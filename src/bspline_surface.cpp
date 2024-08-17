@@ -304,7 +304,6 @@ PointT BspSurface::SampleUV(double su, double sv) {
   return Sample(v_constant, knots_u_, su, u_id);
 }
 
-// TODO
 PointT BspSurface::Sample(const std::vector<PointT> ct_pts,
                           const std::vector<double> knots, double t, int L) {
 
@@ -335,14 +334,12 @@ PointT BspSurface::Sample(const std::vector<PointT> ct_pts,
   return temp[0];
 }
 
-// TODO
 double BspSurface::GetHeight(double x, double y) {
   PointT temp;
   temp = SampleXY(x, y);
   return temp.z;
 }
 
-// TODO
 void BspSurface::GetSurface(PointCloud::Ptr &surface, double step) {
   int m = static_cast<int>((knots_u_[ct_x_num_] - knots_u_[ku_ - 1]) / step);
   int n = static_cast<int>((knots_v_[ct_y_num_] - knots_v_[kv_ - 1]) / step);
