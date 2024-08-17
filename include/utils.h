@@ -19,7 +19,19 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
-typedef pcl::PointXYZINormal PointT;
+typedef pcl::PointXYZ PointT;
+// typedef pcl::PointXYZINormal PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
+
+/**
+ * \brief 计算平方差
+ *
+ * \param sx 查询点x
+ * \param sy 查询点y
+ * \param fx 拟合点x
+ * \param fy 拟合点y
+ * \return 返回误差平方
+ */
+double SquareError(double sx, double sy, double fx, double fy);
 
 #endif // UTILS_H
