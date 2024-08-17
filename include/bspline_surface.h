@@ -49,7 +49,6 @@ public:
    * \param step
    */
   void GetSurface(PointCloud::Ptr &surface, double step=0.05);
-
 private:
   /**
    * \brief 通过kdtree来插补控制点
@@ -123,6 +122,7 @@ private:
   std::vector<std::vector<PointT>> ct_pts_; // 控制点
   PointCloud::Ptr ct_pts_pcl_;              // 控制点的点云
   int ct_x_num_, ct_y_num_;                 // xy控制点数
+  bool debug_;
 };
 
 #endif // BSPLINE_SURFACE_H

@@ -2,6 +2,7 @@
 
 BspSurface::BspSurface(int k, double grid_size)
     : ku_(k), kv_(k), grid_size_(grid_size), ct_pts_pcl_(new PointCloud) {
+  debug_ = true;
   std::cout << "Cons. BSpline Surface." << std::endl;
 }
 
@@ -13,6 +14,14 @@ void BspSurface::SetData(const PointCloud::Ptr &input, double perc, int kn) {
   // step: 计算数据范围
   PointT max_pt, min_pt;
   pcl::getMinMax3D(*input, min_pt, max_pt);
+
+  if (debug_) {
+    std::cout << "min_x: " << min_pt.x << " "
+              << "max_x: " << max_pt.x << std::endl;
+    std::cout << "min_y: " << min_pt.y << " "
+              << "max_y: " << max_pt.y << std::endl;
+  }
+
   double range_x = max_pt.x - min_pt.x;
   double range_y = max_pt.y - min_pt.y;
   ct_x_num_ = std::floor(range_x / grid_size_) + 1;
@@ -25,18 +34,20 @@ void BspSurface::SetData(const PointCloud::Ptr &input, double perc, int kn) {
   // step: 点云分组，对每组点云进行高度提取
   int invalid = 0;
   for (const auto &pt : *input) {
+  
     int x_ind = std::floor((pt.x - min_pt.x) / grid_size_);
     int y_ind = std::floor((pt.y - min_pt.y) / grid_size_);
+
     if (x_ind >= 0 && x_ind < ct_x_num_ && y_ind >= 0 && y_ind < ct_y_num_)
       grids[x_ind][y_ind].points.push_back(pt);
-  }
+  } 
 
   for (int i = 0; i < ct_x_num_; ++i) {
     for (int j = 0; j < ct_y_num_; ++j) {
       auto &pts = grids[i][j].points;
       PointT ct_pt;
       ct_pt.x = (i + 0.5) * grid_size_ + min_pt.x;
-      ct_pt.y = (i + 0.5) * grid_size_ + min_pt.y;
+      ct_pt.y = (j + 0.5) * grid_size_ + min_pt.y;
       if (!pts.empty()) {
         std::sort(pts.begin(), pts.end(),
                   [](PointT a, PointT b) { return a.z < b.z; });
@@ -44,8 +55,8 @@ void BspSurface::SetData(const PointCloud::Ptr &input, double perc, int kn) {
         ct_pt.z = pts[sel_ind].z;
         ct_pts_pcl_->points.push_back(ct_pt);
       } else {
-        std::cout << "No data in this grid!!! Set infinity<double>"
-                  << std::endl;
+        // std::cout << "No data in this grid!!! Set infinity<double>"
+        //           << std::endl;
         ct_pt.z = std::numeric_limits<double>::infinity();
         invalid++;
       }
@@ -66,6 +77,7 @@ void BspSurface::SetData(const PointCloud::Ptr &input, double perc, int kn) {
 }
 
 void BspSurface::KdInterplation(int kn) {
+
   // step: 提取2d点
   PointCloud::Ptr ct_pts_pcl_2d(new PointCloud);
   for (const auto &pt : *ct_pts_pcl_) {
@@ -82,7 +94,7 @@ void BspSurface::KdInterplation(int kn) {
   std::vector<int> indices(kn);
   std::vector<float> sq_dists(kn);
   for (int i = 0; i < ct_x_num_; ++i) {
-    for (int j = 0; i < ct_y_num_; ++j) {
+    for (int j = 0; j < ct_y_num_; ++j) {
       PointT tgt_pt = ct_pts_[i][j];
       if (std::isinf(tgt_pt.z)) {
         tgt_pt.z = 0.0;
@@ -126,22 +138,22 @@ void BspSurface::KnotVector() {
 
 // 计算节点对应的ENU点
 void BspSurface::KnotSpatio() {
-
+  // 单行
   for (int j = kv_ - 1; j <= kv_ - 1; j++) {
     for (int i = ku_ - 1; i <= ct_x_num_; i++) {
       double u = knots_u_[i];
       double v = knots_v_[j];
       PointT temp = SampleUV(u, v);
-      pts_knots_u_.push_back(temp.x);
+      pts_knots_u_.push_back(temp);
     }
   }
-
+  // 单列
   for (int i = ku_ - 1; i <= ku_ - 1; i++) {
     for (int j = kv_ - 1; j <= ct_y_num_; j++) {
       double u = knots_u_[i];
       double v = knots_v_[j];
       PointT temp = SampleUV(u, v);
-      pts_knots_v_.push_back(temp.y);
+      pts_knots_v_.push_back(temp);
     }
   }
 }
@@ -175,23 +187,26 @@ PointT BspSurface::SampleXY(double sx, double sy) {
   int su_i, sv_i;
 
   for (int i = 0; i < pts_knots_u_.size() - 1; i++) {
-    if (sx >= pts_knots_u_[i] && sx < pts_knots_u_[i + 1]) {
+    if (sx >= pts_knots_u_[i].x && sx < pts_knots_u_[i + 1].x) {
       su_i = i;
     }
   }
 
   for (int i = 0; i < pts_knots_v_.size() - 1; i++) {
-    if (sy >= pts_knots_v_[i] && sy < pts_knots_v_[i + 1]) {
+    if (sy >= pts_knots_v_[i].y && sy < pts_knots_v_[i + 1].y) {
       sv_i = i;
     }
   }
 
+  std::cout << "sx: " << sx << std::endl;
+  std::cout << "sy: " << sy << std::endl;
+
   double tolerance = 0.1;
   double epsilon = 0.001;
-  double u_min = m_knots_u_[su_i + ku_ - 1]; // knot值
-  double v_min = m_knots_v_[sv_i + kv_ - 1];
-  double u_max = m_knots_u_[su_i + ku_];
-  double v_max = m_knots_v_[sv_i + kv_];
+  double u_min = knots_u_[su_i + ku_ - 1]; // knot值
+  double v_min = knots_v_[sv_i + kv_ - 1];
+  double u_max = knots_u_[su_i + ku_];
+  double v_max = knots_v_[sv_i + kv_];
 
   int count = 1;
 
@@ -200,19 +215,19 @@ PointT BspSurface::SampleXY(double sx, double sy) {
   double u_span = u_max - u_min;
   double v_span = v_max - v_min;
 
-  float u_res = (sx - pts_knots_u_[su_i]) /
-                (pts_knots_u_[su_i + 1] - pts_knots_u_[su_i]) * u_span;
-  float v_res = (sy - pts_knots_v_[sv_i]) /
-                (pts_knots_v_[sv_i + 1] - pts_knots_v_[sv_i]) * v_span;
+  float u_res = (sx - pts_knots_u_[su_i].x) /
+                (pts_knots_u_[su_i + 1].x - pts_knots_u_[su_i].x) * u_span;
+  float v_res = (sy - pts_knots_v_[sv_i].y) /
+                (pts_knots_v_[sv_i + 1].y - pts_knots_v_[sv_i].y) * v_span;
 
   PointT temp0 = SampleUV(u_min + u_res, v_min + v_res);
 
   if (SquareError(sx, sy, temp0.x, temp0.y) <
       tolerance) { // 若loss足够小，直接返回拟合点
-    std::cout << "x_fit: " << temp0.x << std::endl;
-    std::cout << "y_fit: " << temp0.y << std::endl;
-    std::cout << "u: " << u_min + u_res << std::endl;
-    std::cout << "v: " << v_min + v_res << std::endl;
+    if (debug_) {
+      std::cout << "x_fit: " << temp0.x << std::endl;
+      std::cout << "y_fit: " << temp0.y << std::endl;
+    }
     return temp0;
   } else { // 重新初始化u_min, v_min, u_max, v_max
     if (temp0.x < sx) {
@@ -241,12 +256,12 @@ PointT BspSurface::SampleXY(double sx, double sy) {
     double error = SquareError(sx, sy, x_fit, y_fit);
 
     if (error < tolerance) {
-      std::cout << "x_fit: " << x_fit << std::endl;
-      std::cout << "y_fit: " << y_fit << std::endl;
-      std::cout << "u: " << u_mid << std::endl;
-      std::cout << "v: " << v_mid << std::endl;
-      std::cout << "iterations: " << count << std::endl;
-      return temp.z;
+      if (debug_) {
+        std::cout << "x_fit: " << x_fit << std::endl;
+        std::cout << "y_fit: " << y_fit << std::endl;
+        std::cout << "iterations: " << count << std::endl;
+      }
+      return temp;
     }
     count++;
     // 更新区间
@@ -262,6 +277,9 @@ PointT BspSurface::SampleXY(double sx, double sy) {
       v_max = v_mid;
     }
   }
+
+  std::cout << "Error Occurs !!!" << std::endl;
+  return PointT(0, 0, 0);
 }
 
 // TODO
@@ -313,12 +331,17 @@ PointT BspSurface::Sample(const std::vector<PointT> ct_pts,
 }
 
 // TODO
-double BspSurface::GetHeight(double x, double y) { return SampleXY(x, y).z; }
+double BspSurface::GetHeight(double x, double y) { 
+  PointT temp;
+  temp = SampleXY(x, y);
+  return temp.z; 
+}
 
 // TODO
 void BspSurface::GetSurface(PointCloud::Ptr &surface, double step) {
   int m = static_cast<int>((knots_u_[ct_x_num_] - knots_u_[ku_ - 1]) / step);
   int n = static_cast<int>((knots_v_[ct_y_num_] - knots_v_[kv_ - 1]) / step);
+
 
   for (int i = 0; i <= m; ++i) {
     for (int j = 0; j <= n; ++j) {
@@ -335,9 +358,9 @@ void BspSurface::GetSurface(PointCloud::Ptr &surface, double step) {
         u = knots_u_[ku_ - 1] + i * step;
         v = knots_v_[kv_ - 1] + j * step;
       }
-
       PointT temp = SampleUV(u, v);
       surface->points.push_back(temp);
     }
   }
+
 }

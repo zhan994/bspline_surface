@@ -19,41 +19,23 @@
 
 
 void VisualizePointCloudV2(pcl::PointCloud<pcl::PointXYZ>::Ptr downsample_cloud,
-    const std::vector<Point>&  control_points, const std::vector<Point>&  k_points)
+    pcl::PointCloud<pcl::PointXYZ>::Ptr ctp_cloud, pcl::PointCloud<pcl::PointXYZ>::Ptr sur_cloud)
 {
     pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
     viewer->setBackgroundColor(0, 0, 0);
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr controlCloud(new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::PointCloud<pcl::PointXYZ>::Ptr KCloud(new pcl::PointCloud<pcl::PointXYZ>);
-
-    for (const auto& point : control_points)
-    {
-        controlCloud->points.push_back(pcl::PointXYZ(point.x, point.y, point.z));
-    }
-
-    for (const auto& k_point : k_points)
-    {
-        KCloud->points.push_back(pcl::PointXYZ(k_point.x, k_point.y, k_point.z));
-    }
-
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> cloud_color_handler(downsample_cloud, 255, 255, 255);
     viewer->addPointCloud(downsample_cloud, cloud_color_handler, "downsample_points");
 
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> k_color_handler(controlCloud, 0, 255, 0);
-    viewer->addPointCloud(KCloud, k_color_handler, "k_points");
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> control_color_handler(ctp_cloud, 255, 0, 0);
+    viewer->addPointCloud(ctp_cloud, control_color_handler, "ctp_cloud");
 
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> control_color_handler(controlCloud, 255, 0, 0);
-    viewer->addPointCloud(controlCloud, control_color_handler, "control_points");
-
-
+    // pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> surf_color_handler(sur_cloud, 0, 255, 0);
+    // viewer->addPointCloud(sur_cloud, surf_color_handler, "sur_cloud");
 
     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "downsample_points");
-    // // viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 4, "fitted_points");
-
-    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "k_points");
-
-    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "control_points");
+    // viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "sur_cloud");
+    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "ctp_cloud");
 
     viewer->addCoordinateSystem(1.0);
     viewer->initCameraParameters();
@@ -131,7 +113,7 @@ int main(int argc, char** argv) {
 
     auto end = std::chrono::high_resolution_clock::now();
 
-    double ptc = bsp_fit.GetHeight(-79, 10); // test
+    double ptc = bsp_fit.GetHeight(137.99, -50.81); // test
 
     auto end1 = std::chrono::high_resolution_clock::now();
 
@@ -148,8 +130,12 @@ int main(int argc, char** argv) {
 
     // -----------------test--------------------
 
-    // // 可视化拟合点和控制点
-    // VisualizePointCloudV2(filtered_ground, control_points, k_points_set);
+    // pcl::PointCloud<pcl::PointXYZ>::Ptr surf_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    // bsp_fit.GetSurface(surf_cloud);
+
+    // // // 可视化拟合点和控制点
+    // pcl::PointCloud<pcl::PointXYZ>::Ptr ctp_cloud = bsp_fit.ct_pts_pcl_; // ct_pts_pcl_为private
+    // VisualizePointCloudV2(filtered_ground, ctp_cloud, surf_cloud);
 
     return 0;
 }
