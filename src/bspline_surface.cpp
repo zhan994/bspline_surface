@@ -84,7 +84,7 @@ void BspSurface::KdInterplation(int kn) {
     PointT pt_2d;
     pt_2d.x = pt.x;
     pt_2d.y = pt.y;
-    pt_2d.z = 0;
+    pt_2d.z = 0.;
     ct_pts_pcl_2d->points.push_back(pt_2d);
   }
 
@@ -282,7 +282,7 @@ PointT BspSurface::SampleXY(double sx, double sy) {
   return PointT(0, 0, 0);
 }
 
-// TODO
+
 PointT BspSurface::SampleUV(double su, double sv) {
 
   // step: 确定su, sv所处的节点向量区间下边界索引
@@ -295,6 +295,7 @@ PointT BspSurface::SampleUV(double su, double sv) {
   for (int i = u_id - ku_ + 1; i <= u_id; i++) {
     v_constant[i] = Sample(ct_pts_[i], knots_v_, sv, v_id);
   }
+
 
   return Sample(v_constant, knots_u_, su, u_id);
 }
