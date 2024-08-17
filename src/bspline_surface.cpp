@@ -285,8 +285,8 @@ PointT BspSurface::SampleXY(double sx, double sy) {
 PointT BspSurface::SampleUV(double su, double sv) {
 
   // step: 确定su, sv所处的节点向量区间下边界索引
-  int u_id = KnotId(ct_x_num_ - 1, ku_, knots_u_, su);
-  int v_id = KnotId(ct_y_num_ - 1, kv_, knots_v_, sv);
+  int u_id = KnotId(knots_u_, ku_, ct_x_num_ - 1, su);
+  int v_id = KnotId(knots_v_, kv_, ct_y_num_ - 1, sv);
 
   std::vector<PointT> v_constant(ct_x_num_);
 
