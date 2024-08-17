@@ -31,7 +31,7 @@ public:
    * \param perc 高度选取百分比
    * \param kn kdtree近邻点数
    */
-  void SetData(const PointCloud::Ptr &input, double perc, int kn=3);
+  void SetData(const PointCloud::Ptr &input, double perc, int kn = 3);
 
   /**
    * \brief 获取高度
@@ -48,7 +48,8 @@ public:
    * \param surface
    * \param step
    */
-  void GetSurface(PointCloud::Ptr &surface, double step=0.05);
+  void GetSurface(PointCloud::Ptr &surface, double step = 0.05);
+
 private:
   /**
    * \brief 通过kdtree来插补控制点
@@ -102,17 +103,15 @@ private:
   PointT Sample(const std::vector<PointT> ct_pts,
                 const std::vector<double> knots, double t, int L);
 
-  
-/**
- *  \brief 获得节点对应的节点向量区间下边界索引，仅更新节点相关的控制点
- * 
- *  \param n 控制点数-1
- *  \param k 阶数
- *  \param t 节点向量
- *  \return int 节点向量区间的id
- */
-  int KnotId(const int& n, const int& k, const std::vector<double>& knots, const double& t);  
-
+  /**
+   * \brief 获得节点对应的节点向量区间下边界索引，仅更新节点相关的控制点
+   *
+   * \param n 控制点数-1
+   * \param k 阶数
+   * \param t 节点向量
+   * \return int 节点向量区间的id
+   */
+  int KnotId(const std::vector<double> &knots, int k, int n, double t);
 
   int ku_, kv_;                                   // uv阶
   std::vector<double> knots_u_, knots_v_;         // uv向节点向量

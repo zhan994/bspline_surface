@@ -34,13 +34,13 @@ void BspSurface::SetData(const PointCloud::Ptr &input, double perc, int kn) {
   // step: 点云分组，对每组点云进行高度提取
   int invalid = 0;
   for (const auto &pt : *input) {
-  
+
     int x_ind = std::floor((pt.x - min_pt.x) / grid_size_);
     int y_ind = std::floor((pt.y - min_pt.y) / grid_size_);
 
     if (x_ind >= 0 && x_ind < ct_x_num_ && y_ind >= 0 && y_ind < ct_y_num_)
       grids[x_ind][y_ind].points.push_back(pt);
-  } 
+  }
 
   for (int i = 0; i < ct_x_num_; ++i) {
     for (int j = 0; j < ct_y_num_; ++j) {
@@ -158,8 +158,8 @@ void BspSurface::KnotSpatio() {
   }
 }
 
-int BspSurface::KnotId(const int &n, const int &k,
-                       const std::vector<double> &knots, const double &t) {
+int BspSurface::KnotId(const std::vector<double> &knots, int k, int n,
+                       double t) {
 
   int L = 0;
   if (t >= knots[n + 1]) {
@@ -282,7 +282,6 @@ PointT BspSurface::SampleXY(double sx, double sy) {
   return PointT(0, 0, 0);
 }
 
-
 PointT BspSurface::SampleUV(double su, double sv) {
 
   // step: 确定su, sv所处的节点向量区间下边界索引
@@ -295,7 +294,6 @@ PointT BspSurface::SampleUV(double su, double sv) {
   for (int i = u_id - ku_ + 1; i <= u_id; i++) {
     v_constant[i] = Sample(ct_pts_[i], knots_v_, sv, v_id);
   }
-
 
   return Sample(v_constant, knots_u_, su, u_id);
 }
@@ -332,17 +330,16 @@ PointT BspSurface::Sample(const std::vector<PointT> ct_pts,
 }
 
 // TODO
-double BspSurface::GetHeight(double x, double y) { 
+double BspSurface::GetHeight(double x, double y) {
   PointT temp;
   temp = SampleXY(x, y);
-  return temp.z; 
+  return temp.z;
 }
 
 // TODO
 void BspSurface::GetSurface(PointCloud::Ptr &surface, double step) {
   int m = static_cast<int>((knots_u_[ct_x_num_] - knots_u_[ku_ - 1]) / step);
   int n = static_cast<int>((knots_v_[ct_y_num_] - knots_v_[kv_ - 1]) / step);
-
 
   for (int i = 0; i <= m; ++i) {
     for (int j = 0; j <= n; ++j) {
@@ -363,5 +360,4 @@ void BspSurface::GetSurface(PointCloud::Ptr &surface, double step) {
       surface->points.push_back(temp);
     }
   }
-
 }
