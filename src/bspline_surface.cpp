@@ -367,3 +367,7 @@ void BspSurface::GetSurface(PointCloud::Ptr &surface, double step) {
     }
   }
 }
+
+PointCloud::Ptr BspSurface::GetCtrlPts(){
+  return ct_pts_pcl_;
+}

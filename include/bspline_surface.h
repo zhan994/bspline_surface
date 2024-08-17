@@ -43,6 +43,13 @@ public:
   void SetData(const PointCloud::Ptr &input, double perc, int kn = 3);
 
   /**
+   * \brief Get the Ctrl Pts object
+   * 
+   * \return PointCloud::Ptr 
+   */
+  PointCloud::Ptr GetCtrlPts();
+
+  /**
    * \brief 获取高度
    *
    * \param x enu位置
