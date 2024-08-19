@@ -284,8 +284,8 @@ PointT BspSurface::SampleXY(double sx, double sy) {
     }
   }
 
-  std::cout << "Error Occurs !!!" << std::endl;
-  return PointT(0, 0, 0);
+  std::cout << "Error Occurs !!! Return Is Invalid" << std::endl;
+  return SampleUV(0, 0);
 }
 
 PointT BspSurface::SampleUV(double su, double sv) {
