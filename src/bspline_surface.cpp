@@ -336,7 +336,13 @@ PointT BspSurface::Sample(const std::vector<PointT> ct_pts,
 
 double BspSurface::GetHeight(double x, double y) {
   PointT temp;
-  temp = SampleXY(x, y);
+  if (x >= pts_knots_u_[0].x && x <= pts_knots_u_[pts_knots_u_.size() - 1].x &&
+      y >= pts_knots_v_[0].y && y <= pts_knots_v_[pts_knots_v_.size() - 1].y) {
+    temp = SampleXY(x, y);
+  } else {
+    std::cerr << "Query Point Out of Range!!!" << std::endl;
+    exit(EXIT_FAILURE); 
+  }
   return temp.z;
 }
 
