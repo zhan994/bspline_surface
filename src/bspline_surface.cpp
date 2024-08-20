@@ -188,10 +188,22 @@ int BspSurface::KnotId(const std::vector<double> &knots, int k, int n,
 }
 
 PointT BspSurface::SampleXY(double sx, double sy) {
+  PointT ret;
+  ret.x = sx;
+  ret.y = sy;
+
+  // step: 判断采样点是否在控制点区间内
+  PointT ct_min_pt = ct_pts_[0][0];
+  PointT ct_max_pt = ct_pts_[ct_x_num_ - 1][ct_y_num_ - 1];
+  if (sx < ct_min_pt.x || sy < ct_min_pt.y || sx > ct_max_pt.x ||
+      sy > ct_max_pt.y) {
+    std::cout << "Err. invalid sample" << std::endl;
+    ret.z = std::numeric_limits<double>::infinity();
+    return ret;
+  }
 
   // step: 确定sx、sy所处的节点向量区间
   int su_i, sv_i;
-
   for (int i = 0; i < pts_knots_u_.size() - 1; i++) {
     if (sx >= pts_knots_u_[i].x && sx < pts_knots_u_[i + 1].x) {
       su_i = i;
@@ -335,14 +347,7 @@ PointT BspSurface::Sample(const std::vector<PointT> ct_pts,
 }
 
 double BspSurface::GetHeight(double x, double y) {
-  PointT temp;
-  if (x >= pts_knots_u_[0].x && x <= pts_knots_u_[pts_knots_u_.size() - 1].x &&
-      y >= pts_knots_v_[0].y && y <= pts_knots_v_[pts_knots_v_.size() - 1].y) {
-    temp = SampleXY(x, y);
-  } else {
-    std::cerr << "Query Point Out of Range!!!" << std::endl;
-    exit(EXIT_FAILURE); 
-  }
+  PointT temp = SampleXY(x, y);
   return temp.z;
 }
 
@@ -371,6 +376,4 @@ void BspSurface::GetSurface(PointCloud::Ptr &surface, double step) {
   }
 }
 
-PointCloud::Ptr BspSurface::GetCtrlPts(){
-  return ct_pts_pcl_;
-}
+PointCloud::Ptr BspSurface::GetCtrlPts() { return ct_pts_pcl_; }
