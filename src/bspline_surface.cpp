@@ -284,8 +284,8 @@ PointT BspSurface::SampleXY(double sx, double sy) {
     }
   }
 
-  std::cout << "Error Occurs !!!" << std::endl;
-  return PointT(0, 0, 0);
+  std::cout << "Error Occurs !!! Return Is Invalid" << std::endl;
+  return SampleUV(0, 0);
 }
 
 PointT BspSurface::SampleUV(double su, double sv) {
@@ -304,7 +304,6 @@ PointT BspSurface::SampleUV(double su, double sv) {
   return Sample(v_constant, knots_u_, su, u_id);
 }
 
-// TODO
 PointT BspSurface::Sample(const std::vector<PointT> ct_pts,
                           const std::vector<double> knots, double t, int L) {
 
@@ -335,14 +334,18 @@ PointT BspSurface::Sample(const std::vector<PointT> ct_pts,
   return temp[0];
 }
 
-// TODO
 double BspSurface::GetHeight(double x, double y) {
   PointT temp;
-  temp = SampleXY(x, y);
+  if (x >= pts_knots_u_[0].x && x <= pts_knots_u_[pts_knots_u_.size() - 1].x &&
+      y >= pts_knots_v_[0].y && y <= pts_knots_v_[pts_knots_v_.size() - 1].y) {
+    temp = SampleXY(x, y);
+  } else {
+    std::cerr << "Query Point Out of Range!!!" << std::endl;
+    exit(EXIT_FAILURE); 
+  }
   return temp.z;
 }
 
-// TODO
 void BspSurface::GetSurface(PointCloud::Ptr &surface, double step) {
   int m = static_cast<int>((knots_u_[ct_x_num_] - knots_u_[ku_ - 1]) / step);
   int n = static_cast<int>((knots_v_[ct_y_num_] - knots_v_[kv_ - 1]) / step);
