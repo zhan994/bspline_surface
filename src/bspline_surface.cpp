@@ -238,23 +238,23 @@ PointT BspSurface::SampleXY(double sx, double sy) {
   float v_res = (sy - pts_knots_v_[sv_i].y) /
                 (pts_knots_v_[sv_i + 1].y - pts_knots_v_[sv_i].y) * v_span;
 
-  PointT temp0 = SampleUV(u_min + u_res, v_min + v_res);
+  ret = SampleUV(u_min + u_res, v_min + v_res);
 
-  if (SquareError(sx, sy, temp0.x, temp0.y) <
+  if (SquareError(sx, sy, ret.x, ret.y) <
       tolerance) { // 若loss足够小，直接返回拟合点
     if (debug_) {
-      std::cout << "x_fit: " << temp0.x << std::endl;
-      std::cout << "y_fit: " << temp0.y << std::endl;
+      std::cout << "x_fit: " << ret.x << std::endl;
+      std::cout << "y_fit: " << ret.y << std::endl;
     }
-    return temp0;
+    return ret;
   } else { // 重新初始化u_min, v_min, u_max, v_max
-    if (temp0.x < sx) {
+    if (ret.x < sx) {
       u_min = u_min + u_res;
     } else {
       u_max = u_min + u_res;
     }
 
-    if (temp0.y < sy) {
+    if (ret.y < sy) {
       v_min = v_min + v_res;
     } else {
       v_max = v_min + v_res;
@@ -279,7 +279,8 @@ PointT BspSurface::SampleXY(double sx, double sy) {
         std::cout << "y_fit: " << y_fit << std::endl;
         std::cout << "iterations: " << count << std::endl;
       }
-      return temp;
+      ret = temp;
+      return ret;
     }
     count++;
     // 更新区间
@@ -297,7 +298,7 @@ PointT BspSurface::SampleXY(double sx, double sy) {
   }
 
   std::cout << "Error Occurs !!! Return Is Invalid" << std::endl;
-  return SampleUV(0, 0);
+  return ret;
 }
 
 PointT BspSurface::SampleUV(double su, double sv) {
@@ -347,8 +348,8 @@ PointT BspSurface::Sample(const std::vector<PointT> ct_pts,
 }
 
 double BspSurface::GetHeight(double x, double y) {
-  PointT temp = SampleXY(x, y);
-  return temp.z;
+  PointT ret = SampleXY(x, y);
+  return ret.z;
 }
 
 void BspSurface::GetSurface(PointCloud::Ptr &surface, double step) {
