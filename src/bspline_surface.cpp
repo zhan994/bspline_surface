@@ -188,6 +188,9 @@ int BspSurface::KnotId(const std::vector<double> &knots, int k, int n,
 }
 
 PointT BspSurface::SampleXY(double sx, double sy) {
+  std::cout << "sx: " << sx << std::endl;
+  std::cout << "sy: " << sy << std::endl;
+
   PointT ret;
   ret.x = sx;
   ret.y = sy;
@@ -216,45 +219,39 @@ PointT BspSurface::SampleXY(double sx, double sy) {
     }
   }
 
-  std::cout << "sx: " << sx << std::endl;
-  std::cout << "sy: " << sy << std::endl;
-
+  // step: 按距离比例取初值， loss较大时采用二分逼近
   double tolerance = 0.1;
   double epsilon = 0.001;
   double u_min = knots_u_[su_i + ku_ - 1]; // knot值
   double v_min = knots_v_[sv_i + kv_ - 1];
   double u_max = knots_u_[su_i + ku_];
   double v_max = knots_v_[sv_i + kv_];
-
-  int count = 1;
-
-  // step: 按距离比例取初值， loss较大时采用二分逼近
-
   double u_span = u_max - u_min;
   double v_span = v_max - v_min;
-
   float u_res = (sx - pts_knots_u_[su_i].x) /
                 (pts_knots_u_[su_i + 1].x - pts_knots_u_[su_i].x) * u_span;
   float v_res = (sy - pts_knots_v_[sv_i].y) /
                 (pts_knots_v_[sv_i + 1].y - pts_knots_v_[sv_i].y) * v_span;
 
-  ret = SampleUV(u_min + u_res, v_min + v_res);
-
-  if (SquareError(sx, sy, ret.x, ret.y) <
+  int count = 1;
+  PointT init_pt = SampleUV(u_min + u_res, v_min + v_res);
+  if (SquareError(sx, sy, init_pt.x, init_pt.y) <
       tolerance) { // 若loss足够小，直接返回拟合点
     if (debug_) {
-      std::cout << "x_fit: " << ret.x << std::endl;
-      std::cout << "y_fit: " << ret.y << std::endl;
+      std::cout << "x_fit: " << init_pt.x << std::endl;
+      std::cout << "y_fit: " << init_pt.y << std::endl;
     }
+
+    ret.z = init_pt.z;
     return ret;
   } else { // 重新初始化u_min, v_min, u_max, v_max
-    if (ret.x < sx) {
+    if (init_pt.x < sx) {
       u_min = u_min + u_res;
     } else {
       u_max = u_min + u_res;
     }
 
-    if (ret.y < sy) {
+    if (init_pt.y < sy) {
       v_min = v_min + v_res;
     } else {
       v_max = v_min + v_res;
@@ -266,22 +263,22 @@ PointT BspSurface::SampleXY(double sx, double sy) {
     double v_mid = (v_min + v_max) / 2.0;
 
     double x_fit, y_fit;
-
     PointT temp = SampleUV(u_mid, v_mid);
     x_fit = temp.x;
     y_fit = temp.y;
 
     double error = SquareError(sx, sy, x_fit, y_fit);
-
     if (error < tolerance) {
       if (debug_) {
         std::cout << "x_fit: " << x_fit << std::endl;
         std::cout << "y_fit: " << y_fit << std::endl;
         std::cout << "iterations: " << count << std::endl;
       }
-      ret = temp;
+
+      ret.z = temp.z;
       return ret;
     }
+
     count++;
     // 更新区间
     if (x_fit < sx) {
@@ -297,7 +294,8 @@ PointT BspSurface::SampleXY(double sx, double sy) {
     }
   }
 
-  std::cout << "Error Occurs !!! Return Is Invalid" << std::endl;
+  std::cout << "Error Occurs !!! Return Is Invalid." << std::endl;
+  ret.z = init_pt.z;
   return ret;
 }
 
