@@ -347,6 +347,9 @@ PointT BspSurface::Sample(const std::vector<PointT> ct_pts,
 
 double BspSurface::GetHeight(double x, double y) {
   PointT ret = SampleXY(x, y);
+  if (std::isinf(ret.z)) {
+    return std::numeric_limits<double>::infinity();
+  }
   return ret.z;
 }
 
