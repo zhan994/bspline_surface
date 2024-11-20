@@ -55,14 +55,14 @@ int main(int argc, char **argv) {
 
   VoxelDownSample(cloud, filtered_cloud, 1.0);
 
-  StatisticalRemoveOutlier(filtered_cloud, filtered_ground, 50, 1.0);
+  StatisticalRemoveOutlier(filtered_cloud, filtered_ground, 10, 2.0);
 
   std::cout << "cloud size is: " << filtered_ground->points.size() << std::endl;
 
   auto start = std::chrono::high_resolution_clock::now();
 
   BspSurface bsp_fit(3, 10.0);
-  bsp_fit.SetData(filtered_ground, 0.1);
+  bsp_fit.SetData(filtered_ground, 0.95);
 
   auto end = std::chrono::high_resolution_clock::now();
 
